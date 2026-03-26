@@ -1,7 +1,8 @@
 
 import { Request, Response } from "express";
 import app from "./app";
-// import { envVars } from "./config/env";
+import { envVars } from "./config/env";
+
 
 
 
@@ -11,8 +12,8 @@ app.get('/', (req: Request, res: Response) => {
 
 const bootStrap = () =>{
     try{
-        app.listen(5000, ()=>{
-            console.log(`server is running  on http://localhost:${5000}`);
+        app.listen(envVars.PORT, ()=>{
+            console.log(`server is running  on http://localhost:${envVars.PORT}`);
         })
         
     }catch(error){
