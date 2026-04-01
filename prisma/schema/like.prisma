@@ -1,0 +1,12 @@
+model Like {
+  id       String @id @default(uuid())
+  userId   String @map("user_id")
+  reviewId String @map("review_id")
+
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([userId, reviewId])
+  @@index([reviewId])
+  @@map("likes")
+}

@@ -1,0 +1,20 @@
+model Payment {
+  id            String          @id @default(uuid())
+  userId        String          @map("user_id")
+
+  amount        Float
+  currency      String
+
+  provider      PaymentProvider
+  status        String
+
+  transactionId String? @map("transaction_id")
+
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user          User @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([userId])
+  @@index([provider])
+  @@map("payments")
+}

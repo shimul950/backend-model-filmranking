@@ -1,0 +1,11 @@
+model MediaGenre {
+  mediaId String @map("media_id")
+  genreId String @map("genre_id")
+
+  media   Media @relation(fields: [mediaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  genre   Genre @relation(fields: [genreId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([mediaId, genreId])
+  @@index([genreId])
+  @@map("media_genres")
+}

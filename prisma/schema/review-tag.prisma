@@ -1,0 +1,11 @@
+model ReviewTag {
+  reviewId String @map("review_id")
+  tagId    String @map("tag_id")
+
+  review   Review @relation(fields: [reviewId], references: [id],onDelete: Cascade, onUpdate: Cascade)
+  tag      Tag    @relation(fields: [tagId], references: [id],onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([reviewId, tagId])
+  @@index([tagId])
+  @@map("review_tags")
+}

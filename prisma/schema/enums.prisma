@@ -1,0 +1,27 @@
+enum Role {
+  USER
+  ADMIN
+}
+
+enum PricingType {
+  FREE
+  PREMIUM
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentProvider {
+  STRIPE
+  PAYPAL
+  RAZORPAY
+}

@@ -1,0 +1,8 @@
+model Platform {
+  id    String @id @default(uuid())
+  name  String @unique
+
+  media MediaPlatform[]
+
+  @@map("platforms")
+}

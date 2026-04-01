@@ -11,3 +11,16 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+
+
+// ================= PASSWORD RESET =================
+// model PasswordResetToken {
+//   id        String   @id @default(uuid())
+//   email     String
+//   token     String   @unique
+//   expiresAt DateTime @map("expires_at")
+
+//   @@index([email])
+//   @@map("password_reset_tokens")
+// }

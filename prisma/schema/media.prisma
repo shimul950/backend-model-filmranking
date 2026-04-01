@@ -6,16 +6,16 @@ model Media {
   director      String
   cast          String[]
 
-//   pricing       PricingType @default(FREE)
+  pricing       PricingType @default(FREE)
   youtubeLink   String? @map("youtube_link")
 
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-//   genres        MediaGenre[]
-//   platforms     MediaPlatform[]
-//   reviews       Review[]
-//   watchlist     Watchlist[]
+  genres        MediaGenre[]
+  platforms     MediaPlatform[]
+  reviews       Review[]
+  watchlist     Watchlist[]
 
   @@index([title])
   @@index([releaseYear])

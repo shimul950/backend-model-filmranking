@@ -1,0 +1,11 @@
+model MediaPlatform {
+  mediaId    String @map("media_id")
+  platformId String @map("platform_id")
+
+  media      Media    @relation(fields: [mediaId], references: [id],onDelete: Cascade, onUpdate: Cascade)
+  platform   Platform @relation(fields: [platformId], references: [id],onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([mediaId, platformId])
+  @@index([platformId])
+  @@map("media_platforms")
+}

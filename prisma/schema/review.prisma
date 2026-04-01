@@ -1,0 +1,27 @@
+model Review {
+  id          String       @id @default(uuid())
+  userId      String       @map("user_id")
+  mediaId     String       @map("media_id")
+
+  rating      Int
+  content     String
+  spoiler     Boolean      @default(false)
+
+  status      ReviewStatus @default(PENDING)
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User  @relation(fields: [userId], references: [id],onDelete: Cascade, onUpdate: Cascade)
+  media       Media @relation(fields: [mediaId], references: [id],onDelete: Cascade, onUpdate: Cascade)
+
+  tags        ReviewTag[]
+  likes       Like[]
+  comments    Comment[]
+
+  @@index([userId])
+  @@index([mediaId])
+  @@index([status])
+  @@index([rating])
+  @@map("reviews")
+}
