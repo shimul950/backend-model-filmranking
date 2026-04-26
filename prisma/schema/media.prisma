@@ -1,21 +1,28 @@
 model Media {
-  id            String   @id @default(uuid())
+  id            String      @id @default(uuid())
+  posterUrl     String?
   title         String
   synopsis      String
-  releaseYear   Int      @map("release_year")
+  releaseYear   Int         @map("release_year")
   director      String
   cast          String[]
+  duration      Int //in munite
+  averageRating Float       @default(0)
+  reviewCount   Int         @default(0)
+  language      String
+  country       String
+  status        MediaStatus @default(RELEASED)
 
-  pricing       PricingType @default(FREE)
-  youtubeLink   String? @map("youtube_link")
+  pricing     PricingType @default(FREE)
+  youtubeLink String?     @map("youtube_link")
 
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  genres        MediaGenre[]
-  platforms     MediaPlatform[]
-  reviews       Review[]
-  watchlist     Watchlist[]
+  genres    MediaGenre[]
+  platforms MediaPlatform[]
+  reviews   Review[]
+  watchlist Watchlist[]
 
   @@index([title])
   @@index([releaseYear])

@@ -12,9 +12,12 @@ app.set("views", path.resolve(process.cwd(), `src/app/templates`))
 
 app.all('/api/auth/', toNodeHandler(auth));
 
+//middleware to parse JSON bodies
 app.use(express.json());
+app.use(cookieParser());
 
-app.use(cookieParser())
+// Enable URL-encoded form data parsing
+app.use(express.urlencoded({extended: true}))
 
 app.use('/api/v1', indexRoutes)
 

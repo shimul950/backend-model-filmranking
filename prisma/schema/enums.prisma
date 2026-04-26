@@ -31,3 +31,8 @@ enum PaymentProvider {
   PAYPAL
   RAZORPAY
 }
+enum MediaStatus {
+  UPCOMING
+  RELEASED
+  ARCHIVED
+}
