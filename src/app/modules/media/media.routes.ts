@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { validateRequest } from "../../middleware/validateRequest";
-import { createMediaZodSchema } from "./media.validator";
+import { createMediaZodSchema, updateMediaZodSchema } from "./media.validator";
 import { mediaController } from "./media.controller";
 import { checkAuth } from "../../middleware/checkAuth";
 import { multerUpload } from "../../../config/multer.config";
@@ -8,9 +8,26 @@ import { multerUpload } from "../../../config/multer.config";
 const router = Router()
 
 router.post("/",
-    // checkAuth('ADMIN'),
+    checkAuth('ADMIN'),
     multerUpload.single('file'),
-    validateRequest(createMediaZodSchema),mediaController.createMedia )
+    validateRequest(createMediaZodSchema),
+    mediaController.createMedia
+);
 
+router.get("/", mediaController.getAllMedia);
 
-export const mediaRoutes = router
+router.get("/:id", mediaController.getMediaById);
+
+router.put("/:id",
+    checkAuth('ADMIN'),
+    multerUpload.single('file'),
+    validateRequest(updateMediaZodSchema),
+    mediaController.updateMedia
+);
+
+router.delete("/:id",
+    checkAuth('ADMIN'),
+    mediaController.deleteMedia
+);
+
+export const mediaRoutes = router;
