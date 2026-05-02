@@ -5,6 +5,9 @@ import { AdminRoutes } from "../app/modules/admin/admin.routes";
 import { mediaRoutes } from "../app/modules/media/media.routes";
 import { genreRoutes } from "../app/modules/genre/genre.routes";
 import { platformRoutes } from "../app/modules/platform/platform.routes";
+import { reviewRoutes } from "../app/modules/review/review.routes";
+import { tagRoutes } from "../app/modules/tag/tag.routes";
+import { likeRoute } from "../app/modules/like/like.routes";
 
 const router = Router()
 
@@ -19,5 +22,11 @@ router.use('/media', mediaRoutes)
 router.use('/genre', genreRoutes)
 
 router.use('/platform', platformRoutes)
+
+router.use('/review', reviewRoutes)
+
+router.use('/tag', tagRoutes)
+
+router.use('/like', likeRoute)
 
 export const indexRoutes = router
