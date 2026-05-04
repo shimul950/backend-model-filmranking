@@ -8,6 +8,7 @@ import { platformRoutes } from "../app/modules/platform/platform.routes";
 import { reviewRoutes } from "../app/modules/review/review.routes";
 import { tagRoutes } from "../app/modules/tag/tag.routes";
 import { likeRoute } from "../app/modules/like/like.routes";
+import { paymentRoute } from "../app/modules/payment/payment.route";
 
 const router = Router()
 
@@ -28,5 +29,7 @@ router.use('/review', reviewRoutes)
 router.use('/tag', tagRoutes)
 
 router.use('/like', likeRoute)
+
+router.use('/payment', paymentRoute)
 
 export const indexRoutes = router
