@@ -1,20 +1,22 @@
 model Payment {
-  id            String          @id @default(uuid())
-  userId        String          @map("user_id")
+  id      String @id @default(uuid())
+  userId  String @map("user_id")
+  mediaId String @map("movie_id")
 
-  amount        Float
-  currency      String
+  amount   Float
+  currency String
 
-  provider      PaymentProvider
-  status        String
+  provider PaymentProvider
+  status   String
 
   transactionId String? @map("transaction_id")
 
-  createdAt     DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  user          User @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  user  User   @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
+  @@unique([userId, mediaId]) // prevent duplicate purchase
   @@index([userId])
-  @@index([provider])
   @@map("payments")
 }

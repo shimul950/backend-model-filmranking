@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import app from "./app";
 import { envVars } from "./config/env";
+import { seedAdmin } from "./utils/seed";
 
 
 
@@ -10,8 +11,9 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello, TypeScript + Express!');
 });
 
-const bootStrap = () =>{
+const bootStrap = async() =>{
     try{
+        await seedAdmin()
         app.listen(envVars.PORT, ()=>{
             console.log(`server is running  on http://localhost:${envVars.PORT}`);
         })

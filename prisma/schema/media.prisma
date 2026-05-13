@@ -23,6 +23,7 @@ model Media {
   platforms MediaPlatform[]
   reviews   Review[]
   watchlist Watchlist[]
+  payment   Payment[]
 
   @@index([title])
   @@index([releaseYear])

@@ -88,6 +88,14 @@ export const auth = betterAuth({
                             email
                         }
                     })
+                    if(!user){
+                        console.error(`User with email ${email} not found. Cannot send varification OTP`);
+                        return
+                    }
+
+                    if(user && user.role === Role.ADMIN){
+                        console.log(`User with this email ${email} is an admin. Skipping sending varification OTP`);
+                    }
 
                     if (user && !user.emailVerified) {
                         sendEmail({

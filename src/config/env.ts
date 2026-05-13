@@ -34,7 +34,10 @@ interface EnvConfig {
 
     CLOUDINARY_CLOUDE_NAME: string,
     CLOUDINARY_API_KEY : string,
-    CLOUDINARY_API_SECRET : string
+    CLOUDINARY_API_SECRET : string,
+
+    SEED_ADMIN_EMAIL :string,
+    SEED_ADMIN_PASSWORD :string
 
 }
 
@@ -64,7 +67,9 @@ const loadEnvVariables = (): EnvConfig => {
         'STRIPE_SECRET_KEY',
         'CLOUDINARY_CLOUDE_NAME',
         'CLOUDINARY_API_KEY',
-        'CLOUDINARY_API_SECRET'
+        'CLOUDINARY_API_SECRET',
+        'SEED_ADMIN_EMAIL',
+        'SEED_ADMIN_PASSWORD'
 
     ]
 
@@ -106,7 +111,10 @@ const loadEnvVariables = (): EnvConfig => {
 
         CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY as string,
         CLOUDINARY_CLOUDE_NAME: process.env.CLOUDINARY_CLOUDE_NAME as string,
-        CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET as string
+        CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET as string,
+
+        SEED_ADMIN_EMAIL: process.env.SEED_ADMIN_SECRET as string,
+        SEED_ADMIN_PASSWORD: process.env.SEED_ADMIN_PASSWORD as string
     }
 }
 

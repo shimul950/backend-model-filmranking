@@ -1,54 +1,45 @@
-import Stripe from "stripe";
-import { prisma } from "../../lib/prisma";
+import  { Stripe } from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-04-22.dahlia",
 });
 
-const createPaymentIntent = async (userId: string, amount: number) => {
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: Math.round(amount * 100), // cents
-    currency: "bdt",
+const createCheckoutSession = async (
+  userId: string,
+  movieId: string,
+  amount: number
+) => {
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    mode: "payment",
+
+    line_items: [
+      {
+        price_data: {
+          currency: "bdt",
+          product_data: {
+            name: "Movie Access",
+          },
+          unit_amount: Math.round(amount * 100),
+        },
+        quantity: 1,
+      },
+    ],
+
     metadata: {
       userId,
+      movieId,
     },
-  });
 
-  // Save initial payment
-  await prisma.payment.create({
-    data: {
-      userId,
-      amount,
-      currency: "bdt",
-      provider: "STRIPE",
-      status: "PENDING",
-      transactionId: paymentIntent.id,
-    },
+    success_url: "http://localhost:3000/success",
+    cancel_url: "http://localhost:3000/cancel",
   });
 
   return {
-    clientSecret: paymentIntent.client_secret,
+    url: session.url,
   };
 };
 
-const confirmPaymentFromWebhook = async (paymentIntent: Stripe.PaymentIntent) => {
-  const existing = await prisma.payment.findFirst({
-    where: {
-      transactionId: paymentIntent.id,
-    },
-  });
-
-  if (!existing) return;
-
-  await prisma.payment.update({
-    where: { id: existing.id },
-    data: {
-      status: paymentIntent.status === "succeeded" ? "SUCCESS" : "FAILED",
-    },
-  });
-};
-
-export const paymentService = {
-  createPaymentIntent,
-  confirmPaymentFromWebhook,
-};
+export const paymentService ={
+  createCheckoutSession
+}

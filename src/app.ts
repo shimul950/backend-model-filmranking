@@ -15,7 +15,7 @@ app.all('/api/auth/', toNodeHandler(auth));
 
 // Stripe webhook needs raw request body for signature verification
 app.post(
-  "/api/v1/payment/webhook",
+  "/webhook",
   express.raw({ type: "application/json" }),
   paymentController.stripeWebhook
 );

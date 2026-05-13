@@ -1,55 +1,72 @@
 import { Request, Response } from "express";
-import  status  from "http-status";
-import Stripe from "stripe";
-import { paymentService } from "./payment.service";
 import { catchAsync } from "../../../shared/catchAsync";
 import { sendResponce } from "../../../shared/sendResponce";
+import { paymentService } from "./payment.service";
+import status from "http-status";
+import Stripe from "stripe";
+import { prisma } from "../../lib/prisma";
 
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+//   apiVersion: "2026-04-22.dahlia",
+// });
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-04-22.dahlia",
-});
-
-// Create payment intent
 const createPayment = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user.userId; // from auth middleware
-  const { amount } = req.body;
+  const userId = req.user.userId;
+  const { movieId, amount } = req.body;
 
-  const result = await paymentService.createPaymentIntent(userId, amount);
+  const result = await paymentService.createCheckoutSession(
+    userId,
+    movieId,
+    amount
+  );
 
   sendResponce(res, {
     httpStatusCode: status.OK,
     success: true,
-    message: "Payment intent created successfully",
+    message: "Checkout session created",
     data: result,
   });
 });
 
-// Webhook (VERY IMPORTANT)
 const stripeWebhook = async (req: Request, res: Response) => {
   const sig = req.headers["stripe-signature"] as string;
 
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(
+    event = Stripe.webhooks.constructEvent(
       req.body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-  } catch (err ) {
-    return res.status(400).send(`Webhook Error`,err);
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send("Webhook Error");
   }
 
-  if (event.type === "payment_intent.succeeded") {
-    const paymentIntent = event.data.object as Stripe.PaymentIntent;
-    await paymentService.confirmPaymentFromWebhook(paymentIntent);
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+
+    const userId = session.metadata?.userId;
+    const mediaId = session.metadata?.movieId;
+
+    await prisma.payment.create({
+      data: {
+        userId: userId!,
+        mediaId: mediaId!,
+        amount: (session.amount_total || 0) / 100,
+        currency: session.currency || "bdt",
+        provider: "STRIPE",
+        status: "SUCCESS",
+        transactionId: session.id,
+      },
+    });
   }
 
   res.json({ received: true });
 };
 
 export const paymentController = {
-  createPayment,
-  stripeWebhook,
-};
+  createPayment, 
+  stripeWebhook
+}
