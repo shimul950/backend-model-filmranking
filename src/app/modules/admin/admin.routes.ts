@@ -32,4 +32,15 @@ router.delete(
   adminController.softDeleteAdmin
 );
 
+router.patch(
+  "/change-user-status/:id",
+  checkAuth("ADMIN"),
+  adminController.changeUserStatus
+)
+
+router.patch(
+  "/change-user-role/:id",
+  checkAuth("ADMIN"),
+  adminController.changeUserRole
+)
 export const AdminRoutes = router

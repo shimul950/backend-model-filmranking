@@ -141,7 +141,7 @@ const register = async (payload: RegisterPatientPayload) => {
 
 
 const loginUser = async (payload: LoginUserPayload) => {
-    const { email, password } = payload;
+    const {email, password} = payload;
 
     let data;
     try {

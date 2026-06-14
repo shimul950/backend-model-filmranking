@@ -7,7 +7,7 @@ model Payment {
   currency String
 
   provider PaymentProvider
-  status   String
+  status   PaymentStatus
 
   transactionId String? @map("transaction_id")
 

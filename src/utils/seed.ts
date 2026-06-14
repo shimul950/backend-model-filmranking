@@ -14,7 +14,7 @@ export const seedAdmin = async () => {
         })
 
         if (isAdminExist) {
-            throw new AppError(status.BAD_REQUEST, "Admin already Exist. Skipping seeding super admin")
+            throw new AppError(status.BAD_REQUEST, "Admin already Exist. Skipping seeding  admin")
         }
 
         const adminUser = await auth.api.signUpEmail({
@@ -60,11 +60,13 @@ export const seedAdmin = async () => {
         console.log("Seededadmin created", seededAdmin);
     } catch (error) {
         console.error("Error seeding admin", error)
-        await prisma.user.delete({
-            where: {
-                email: envVars.SEED_ADMIN_EMAIL
-            }
-        })
+        if (envVars.SEED_ADMIN_EMAIL) {
+            await prisma.user.delete({
+                where: {
+                    email: envVars.SEED_ADMIN_EMAIL
+                }
+            })
+        }
     }
 
 }

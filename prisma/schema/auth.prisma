@@ -17,6 +17,7 @@ model User {
   comments           Comment[]
   likes              Like[]
   admin              Admin?
+  superAdmin         SuperAdmin?
   watchlist          Watchlist[]
   subscriptions      Subscription[]
   payments           Payment[]

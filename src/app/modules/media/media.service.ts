@@ -33,8 +33,16 @@ const createMedia = async (payload: ICreateMedia) => {
     },
 
     include: {
-      genres: true,
-      platforms: true,
+      genres: {
+        include:{
+          genre:true
+        }
+      },
+      platforms:{
+        include:{
+          platform: true
+        }
+      },
     },
   });
 

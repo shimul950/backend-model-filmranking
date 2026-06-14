@@ -113,7 +113,7 @@ const loadEnvVariables = (): EnvConfig => {
         CLOUDINARY_CLOUDE_NAME: process.env.CLOUDINARY_CLOUDE_NAME as string,
         CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET as string,
 
-        SEED_ADMIN_EMAIL: process.env.SEED_ADMIN_SECRET as string,
+        SEED_ADMIN_EMAIL: process.env.SEED_ADMIN_EMAIL as string,
         SEED_ADMIN_PASSWORD: process.env.SEED_ADMIN_PASSWORD as string
     }
 }

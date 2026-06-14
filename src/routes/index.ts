@@ -9,6 +9,8 @@ import { reviewRoutes } from "../app/modules/review/review.routes";
 import { tagRoutes } from "../app/modules/tag/tag.routes";
 import { likeRoute } from "../app/modules/like/like.routes";
 import { paymentRoute } from "../app/modules/payment/payment.route";
+import { statsRoute } from "../app/modules/stats/stats.routes";
+import { SuperAdminRoutes } from "../app/modules/superAdmin/superAdmin.routes";
 
 const router = Router()
 
@@ -17,6 +19,8 @@ router.use('/auth',authRouters)
 router.use('/users', userRoute)
 
 router.use('/admins', AdminRoutes)
+
+router.use('/super-admins', SuperAdminRoutes)
 
 router.use('/media', mediaRoutes)
 
@@ -31,5 +35,7 @@ router.use('/tag', tagRoutes)
 router.use('/like', likeRoute)
 
 router.use('/payment', paymentRoute)
+
+router.use('/stats', statsRoute)
 
 export const indexRoutes = router

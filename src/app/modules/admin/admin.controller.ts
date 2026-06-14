@@ -54,9 +54,35 @@ const softDeleteAdmin = catchAsync(async(req: Request, res:Response) =>{
     })
 })
 
+const changeUserStatus = catchAsync(async(req: Request, res:Response) =>{
+    
+    const result = await adminService.changeUserStatus();
+
+    sendResponce(res,{
+        httpStatusCode: status.OK,
+        success: true,
+        message: "User status changed successfully",
+        data: result
+    })
+})
+
+const changeUserRole = catchAsync(async(req: Request, res:Response) =>{
+    
+    const result = await adminService.changeUserRole();
+
+    sendResponce(res,{
+        httpStatusCode: status.OK,
+        success: true,
+        message: "User role changed successfully",
+        data: result
+    })
+})
+
 export const adminController = {
     getAdminById,
     getAllAdmins,
     updateAdmin,
-    softDeleteAdmin
+    softDeleteAdmin,
+    changeUserRole,
+    changeUserStatus
 }

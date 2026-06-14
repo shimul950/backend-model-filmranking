@@ -3,7 +3,8 @@ import status from "http-status";
 import AppError from "../../errorHelpers/appError";
 import { IRequestUser } from "../../interfaces/requestUser.interface";
 import { prisma } from "../../lib/prisma"
-import { IUpdateAdmin } from "./admin.interface";
+import { IChangeUserRolePayload, IChangeUserStatusPayload, IUpdateAdmin } from "./admin.interface";
+import { Role } from "../../../generated/prisma/enums";
 
 const getAllAdmins = async () => {
     // Fetch all non-deleted admin
@@ -96,10 +97,51 @@ const softDeleteAdmin = async (id: string, user: IRequestUser) => {
     return result;
 }
 
+const changeUserStatus = async(user:IRequestUser, payload:IChangeUserStatusPayload) =>{
+
+    // 1. Admin can change the status of any user. Except himself. He cannot change his own status.
+
+    //2. Admin can not change the other admin's status
+
+    const isAdminExists = await prisma.admin.findUniqueOrThrow({
+        where:{
+            email: user.email
+        },
+        include: {
+            user: true
+        }
+    })
+
+    const {userId, userStatus} = payload;
+
+    // finding the user/admin who will be changed
+    const userToChangeStatus = await prisma.user.findUniqueOrThrow({
+        where:{
+            id: userId
+        }
+    })
+
+    const selfStatusChange = isAdminExists.userId === userId;
+
+    if(selfStatusChange){
+        throw new AppError(status.BAD_REQUEST, "You cannot change your own status");
+    }
+
+    if(isAdminExists.user.role === Role.ADMIN && userToChangeStatus.role === Role.ADMIN){
+        throw new AppError(status.BAD_REQUEST, "You cannot change the status of ADMIN")
+    }
+
+    
+}    
+
+const changeUserRole = async(user:IRequestUser, payload:IChangeUserRolePayload) =>{}
+
 
 export const adminService = {
     getAllAdmins,
     getAdminById,
     updateAdmin,
-    softDeleteAdmin
+    softDeleteAdmin,
+    changeUserRole,
+    changeUserStatus
 }
