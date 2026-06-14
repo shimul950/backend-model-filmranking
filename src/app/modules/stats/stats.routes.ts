@@ -7,7 +7,7 @@ const router = Router()
 
 router.get(
     '/',
-    checkAuth(Role.ADMIN, Role.USER),
+    checkAuth(Role.ADMIN, Role.USER, Role.SUPER_ADMIN),
     statsController.getDashboardStatsData
 )
 

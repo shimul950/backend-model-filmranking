@@ -12,22 +12,22 @@ const router = express.Router();
 
 router.post(
   "/",
-  checkAuth('ADMIN'),
+  checkAuth('ADMIN', 'SUPER_ADMIN'),
   validateRequest(platformValidation.createPlatformSchema),
   platformController.createPlatform
 );
 
-router.get("/",checkAuth('ADMIN'), platformController.getAllPlatforms);
+router.get("/", checkAuth('ADMIN', 'SUPER_ADMIN'), platformController.getAllPlatforms);
 
-router.get("/:id",checkAuth('ADMIN'), platformController.getSinglePlatform);
+router.get("/:id", checkAuth('ADMIN', 'SUPER_ADMIN'), platformController.getSinglePlatform);
 
 router.patch(
   "/:id",
-  checkAuth('ADMIN'),
+  checkAuth('ADMIN', 'SUPER_ADMIN'),
   validateRequest(platformValidation.updatePlatformSchema),
   platformController.updatePlatform
 );
 
-router.delete("/:id",checkAuth('ADMIN'), platformController.deletePlatform);
+router.delete("/:id", checkAuth('ADMIN', 'SUPER_ADMIN'), platformController.deletePlatform);
 
 export const platformRoutes = router;

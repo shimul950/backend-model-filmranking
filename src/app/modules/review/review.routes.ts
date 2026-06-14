@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.post(
   "/",
-  checkAuth('ADMIN','USER'),
+  checkAuth('ADMIN', 'USER', 'SUPER_ADMIN'),
   validateRequest(createReviewSchema),
   ReviewController.createReview
 );
@@ -25,18 +25,18 @@ router.get("/:id", ReviewController.getSingleReview);
 
 router.patch(
   "/:id",
-  checkAuth('ADMIN','USER'),
+  checkAuth('ADMIN', 'USER', 'SUPER_ADMIN'),
   validateRequest(updateReviewSchema),
   ReviewController.updateReview
 );
 
 router.patch(
   "/:id/status",
-  checkAuth('ADMIN'),
+  checkAuth('ADMIN', 'SUPER_ADMIN'),
   validateRequest(updateStatusSchema),
   ReviewController.updateReviewStatus
 );
 
-router.delete("/:id",checkAuth('ADMIN') ,ReviewController.deleteReview);
+router.delete("/:id", checkAuth('ADMIN', 'SUPER_ADMIN'), ReviewController.deleteReview);
 
 export const reviewRoutes = router;

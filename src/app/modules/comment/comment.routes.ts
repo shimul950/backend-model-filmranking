@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.post(
   "/",
-  checkAuth("ADMIN", "USER"),
+  checkAuth("ADMIN", "USER", "SUPER_ADMIN"),
   validateRequest(createCommentSchema),
   commentController.createComment
 );
@@ -18,14 +18,14 @@ router.get("/:id", commentController.getSingleComment);
 
 router.patch(
   "/:id",
-  checkAuth("ADMIN", "USER"),
+  checkAuth("ADMIN", "USER", "SUPER_ADMIN"),
   validateRequest(updateCommentSchema),
   commentController.updateComment
 );
 
 router.delete(
   "/:id",
-  checkAuth("ADMIN", "USER"),
+  checkAuth("ADMIN", "USER", "SUPER_ADMIN"),
   commentController.deleteComment
 );
 

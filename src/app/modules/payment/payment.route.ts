@@ -7,7 +7,7 @@ const router = Router();
 
 router.post(
   "/checkout",
-  checkAuth("ADMIN", "USER"),
+  checkAuth("ADMIN", "USER", "SUPER_ADMIN"),
   paymentController.createPayment
 );
 

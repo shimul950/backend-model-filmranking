@@ -7,22 +7,22 @@ import { checkAuth } from "../../middleware/checkAuth";
 const router = express.Router();
 
 router.post(
-  "/",checkAuth('ADMIN'),
+  "/", checkAuth('ADMIN', 'SUPER_ADMIN'),
   validateRequest(createGenreZodSchema),
   genreController.createGenre
 );
 
-router.get("/",checkAuth('ADMIN'), genreController.getAllGenres);
+router.get("/", checkAuth('ADMIN', 'SUPER_ADMIN'), genreController.getAllGenres);
 
-router.get("/:id",checkAuth('ADMIN'), genreController.getSingleGenre);
+router.get("/:id", checkAuth('ADMIN', 'SUPER_ADMIN'), genreController.getSingleGenre);
 
 router.patch(
   "/:id",
-  checkAuth('ADMIN'),
+  checkAuth('ADMIN', 'SUPER_ADMIN'),
   validateRequest(updateGenreZodSchema),
   genreController.updateGenre
 );
 
-router.delete("/:id",checkAuth('ADMIN'), genreController.deleteGenre);
+router.delete("/:id", checkAuth('ADMIN', 'SUPER_ADMIN'), genreController.deleteGenre);
 
 export const genreRoutes = router;

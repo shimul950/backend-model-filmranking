@@ -11,7 +11,7 @@ const router = Router();
 
 router.post(
     "/create-admin",
-    checkAuth("ADMIN"),
+    checkAuth("ADMIN", "SUPER_ADMIN"),
     validateRequest(createAdminValidationSchema)
     , userController.createAdmin)
 

@@ -7,22 +7,22 @@ import { checkAuth } from "../../middleware/checkAuth";
 const router = express.Router();
 
 router.post(
-  "/",checkAuth('ADMIN'),
+  "/", checkAuth('ADMIN', 'SUPER_ADMIN'),
   validateRequest(createTagZodSchema),
   tagController.createTag
 );
 
-router.get("/",checkAuth('ADMIN'), tagController.getAllTags);
+router.get("/", checkAuth('ADMIN', 'SUPER_ADMIN'), tagController.getAllTags);
 
-router.get("/:id",checkAuth('ADMIN'), tagController.getSingleTag);
+router.get("/:id", checkAuth('ADMIN', 'SUPER_ADMIN'), tagController.getSingleTag);
 
 router.patch(
   "/:id",
-  checkAuth('ADMIN'),
+  checkAuth('ADMIN', 'SUPER_ADMIN'),
   validateRequest(updateTagZodSchema),
   tagController.updateTag
 );
 
-router.delete("/:id",checkAuth('ADMIN'), tagController.deleteTag);
+router.delete("/:id", checkAuth('ADMIN', 'SUPER_ADMIN'), tagController.deleteTag);
 
 export const tagRoutes = router;

@@ -55,8 +55,9 @@ const softDeleteAdmin = catchAsync(async(req: Request, res:Response) =>{
 })
 
 const changeUserStatus = catchAsync(async(req: Request, res:Response) =>{
-    
-    const result = await adminService.changeUserStatus();
+    const user = req.user;
+    const payload = req.body
+    const result = await adminService.changeUserStatus(user, payload);
 
     sendResponce(res,{
         httpStatusCode: status.OK,
@@ -67,8 +68,9 @@ const changeUserStatus = catchAsync(async(req: Request, res:Response) =>{
 })
 
 const changeUserRole = catchAsync(async(req: Request, res:Response) =>{
-    
-    const result = await adminService.changeUserRole();
+    const user = req.user;
+    const payload = req.body
+    const result = await adminService.changeUserRole(user, payload);
 
     sendResponce(res,{
         httpStatusCode: status.OK,
