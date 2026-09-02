@@ -9,7 +9,8 @@ import { IRequestUser } from "../../interfaces/requestUser.interface";
 import { jwtUtils } from "../../../utils/jwt";
 import { envVars } from "../../../config/env";
 import { JwtPayload } from "jsonwebtoken";
-import { IChangePasswordPayload, LoginUserPayload, RegisterPatientPayload } from "./auth.interface";
+import { IChangePasswordPayload, LoginUserPayload, RegisterUserPayload } from "./auth.interface";
+import { deleteFileFromCloudanary } from "../../../config/cloudinary.config";
 
 
 // const register = async (payload: RegisterPatientPayload) => {
@@ -88,14 +89,14 @@ import { IChangePasswordPayload, LoginUserPayload, RegisterPatientPayload } from
 //     }
 // }
 
-const register = async (payload: RegisterPatientPayload) => {
+const register = async (payload: RegisterUserPayload) => {
     const { name, email, password } = payload;
 
     const isExist = await prisma.user.findUnique({
-        where:{email: payload.email}
+        where: { email: payload.email }
     })
 
-    if(isExist){
+    if (isExist) {
         throw new AppError(status.BAD_REQUEST, "User already exist")
     }
 
@@ -141,7 +142,7 @@ const register = async (payload: RegisterPatientPayload) => {
 
 
 const loginUser = async (payload: LoginUserPayload) => {
-    const {email, password} = payload;
+    const { email, password } = payload;
 
     let data;
     try {
@@ -152,7 +153,7 @@ const loginUser = async (payload: LoginUserPayload) => {
             }
         })
     } catch (error: any) {
-        // Supabase-style / better-auth errors may include a body with more info
+
         const message =
             (error?.body?.message as string) ||
             (error?.message as string) ||
@@ -199,7 +200,7 @@ const loginUser = async (payload: LoginUserPayload) => {
 
 const getme = async (user: IRequestUser) => {
     const isUserExists = await prisma.user.findUnique({
-        where: { id: user.userId},
+        where: { id: user.userId },
     })
 
     if (!isUserExists) {
@@ -475,6 +476,49 @@ const googleLoginSuccess = async (session: Record<string, any>) => {
     }
 }
 
+
+
+
+const updateProfile = async (
+    payload: { name?: string },
+    sessionToken: string,
+    file?: Express.Multer.File
+) => {
+    const session = await auth.api.getSession({
+        headers: new Headers({ Authorization: `Bearer ${sessionToken}` })
+    })
+
+    if (!session) {
+        throw new AppError(status.UNAUTHORIZED, "Invalid session token")
+    }
+
+    let imageUrl: string | undefined;
+
+    if (file) {
+        // CloudinaryStorage (multer-storage-cloudinary) already uploaded
+        // the file by the time this runs — file.path holds the secure URL.
+        imageUrl = file.path;
+
+        const currentUser = await prisma.user.findUnique({
+            where: { id: session.user.id },
+            select: { image: true }
+        })
+        if (currentUser?.image) {
+            await deleteFileFromCloudanary(currentUser.image)
+        }
+    }
+
+    const updatedUser = await prisma.user.update({
+        where: { id: session.user.id },
+        data: {
+            ...(payload.name !== undefined && { name: payload.name }),
+            ...(imageUrl !== undefined && { image: imageUrl }),
+        }
+    })
+
+    return updatedUser
+}
+
 export const authServices = {
     register,
     loginUser,
@@ -485,5 +529,6 @@ export const authServices = {
     verifyEmail,
     forgetPassword,
     resetPassword,
-    googleLoginSuccess
+    googleLoginSuccess,
+    updateProfile
 }

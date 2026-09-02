@@ -1,4 +1,4 @@
-export interface RegisterPatientPayload {
+export interface RegisterUserPayload {
     name: string,
     email: string,
     password: string
@@ -40,3 +40,5 @@ export interface ISessionPayload {
         deletedAt?: Date | null | undefined;
     };
 } 
+
+

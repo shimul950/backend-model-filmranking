@@ -252,6 +252,28 @@ const handleOAuthError = catchAsync((req: Request, res: Response) =>{
 })
 
 
+const updateProfile = catchAsync(async (req: Request, res: Response) => {
+    const sessionToken = cookieUtils.getCookie(req, "better-auth.session_token");
+
+    if (!sessionToken) {
+        throw new AppError(status.UNAUTHORIZED, "Unauthorized access! No session token provided.")
+    }
+
+    const result = await authServices.updateProfile(
+        req.body,
+        sessionToken,
+        req.file as Express.Multer.File | undefined
+    );
+
+    sendResponce(res, {
+        httpStatusCode: status.OK,
+        success: true,
+        message: "Profile updated successfully",
+        data: result
+    })
+})
+
+
 export const authControllers = {
     register,
     loginUser,
@@ -264,5 +286,6 @@ export const authControllers = {
     resetPassword,
     googleLogin,
     googleLoginSuccess,
-    handleOAuthError
+    handleOAuthError,
+    updateProfile
 }

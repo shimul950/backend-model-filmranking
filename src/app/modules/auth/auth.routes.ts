@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authControllers } from "./auth.controller";
 import { checkAuth } from "../../middleware/checkAuth";
+import { multerUpload } from "../../../config/multer.config";
 
 const router = Router()
 
@@ -20,4 +21,11 @@ router.post("/verify-email", authControllers.varifyEmail)
 router.get("/login/google", authControllers.googleLogin);
 router.get("/google/success", authControllers.googleLoginSuccess);
 router.get("/oauth/error", authControllers.handleOAuthError)
+
+router.patch(
+    "/update-profile",
+    checkAuth("ADMIN", "USER", "SUPER_ADMIN"),
+    multerUpload.single('file'),
+    authControllers.updateProfile
+)
 export const authRouters = router;

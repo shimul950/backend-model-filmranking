@@ -6,17 +6,18 @@ import { auth } from "../app/lib/auth"
 import { envVars } from "../config/env"
 
 export const seedAdmin = async () => {
-    try {
-        const isAdminExist = await prisma.user.findFirst({
-            where: {
-                role: Role.ADMIN
-            }
-        })
-
-        if (isAdminExist) {
-            throw new AppError(status.BAD_REQUEST, "Admin already Exist. Skipping seeding  admin")
+    const isAdminExist = await prisma.user.findFirst({
+        where: {
+            role: Role.ADMIN
         }
+    })
 
+    if (isAdminExist) {
+        console.log("Admin already exists. Skipping seeding.")
+        return
+    }
+
+    try {
         const adminUser = await auth.api.signUpEmail({
             body: {
                 email: envVars.SEED_ADMIN_EMAIL,
@@ -24,7 +25,7 @@ export const seedAdmin = async () => {
                 name: "Seed admin",
                 role: Role.ADMIN,
                 needPasswordChange: false,
-                rememberMe:false
+                rememberMe: false
             }
         })
 
@@ -45,7 +46,6 @@ export const seedAdmin = async () => {
                     email: envVars.SEED_ADMIN_EMAIL
                 }
             })
-
         })
 
         const seededAdmin = await prisma.admin.findFirst({
@@ -57,16 +57,19 @@ export const seedAdmin = async () => {
             }
         })
 
-        console.log("Seededadmin created", seededAdmin);
+        console.log("Seeded admin created", seededAdmin);
     } catch (error) {
-        console.error("Error seeding admin", error)
+        console.error("Error seeding admin — rolling back", error)
         if (envVars.SEED_ADMIN_EMAIL) {
-            await prisma.user.delete({
+            await prisma.user.deleteMany({
                 where: {
                     email: envVars.SEED_ADMIN_EMAIL
                 }
+            }).catch((cleanupError) => {
+                // Don't let a failed cleanup crash the server too —
+                // log it and move on so bootStrap() can still start listening.
+                console.error("Rollback cleanup also failed:", cleanupError)
             })
         }
     }
-
 }
