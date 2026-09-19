@@ -13,6 +13,12 @@ router.post(
   commentController.createComment
 );
 
+router.get(
+  "/my-comments",
+  checkAuth("ADMIN", "USER", "SUPER_ADMIN"),
+  commentController.getUserComments
+);
+
 router.get("/review/:reviewId", commentController.getCommentsByReview);
 router.get("/:id", commentController.getSingleComment);
 

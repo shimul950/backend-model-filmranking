@@ -38,7 +38,6 @@ TInclude = Record<string, unknown>
     search() : this {
         const {searchTerm} = this.queryParams;
         const { searchableFields} = this.config;
-        // doctorSearchableFields = ['user.name', 'user.email', 'specialties.specialty.title' , 'specialties.specialty.description']
         if(searchTerm && searchableFields && searchableFields.length > 0){
             const searchConditions : Record<string, unknown>[] = searchableFields.map((field) => {
                 if(field.includes(".")){
@@ -99,8 +98,7 @@ TInclude = Record<string, unknown>
 
         return this;
     }
-    // /doctors?searchTerm=john&page=1&sortBy=name&specialty=cardiology&appointmentFee[lt]=100 => {}
-    // { specialty: 'cardiology', appointmentFee: { lt: '100' } }
+    
     filter() : this {
 
         const { filterableFields } = this.config;
@@ -127,10 +125,6 @@ TInclude = Record<string, unknown>
             const isAllowedField = !filterableFields || filterableFields.length === 0 || filterableFields.includes(key);
 
             
-            // doctorFilterableFields = ['specialties.specialty.title', 'appointmentFee']
-            // /doctors?appointmentFee[lt]=100&appointmentFee[gt]=50 => { appointmentFee: { lt: '100', gt: '50' } }
-
-            // /doctors?user.name=John => { user: { name: 'John' } }
             if(key.includes(".")){
                 const parts = key.split(".");
 

@@ -1,7 +1,9 @@
 import { Role } from "../../../generated/prisma/client";
+import { QueryBuilder } from "../../../utils/QueryBuilder";
+import { IQueryParams } from "../../interfaces/queryBuilder.interface";
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
-import {  ICreateAdmin } from "./user.interface";
+import { ICreateAdmin } from "./user.interface";
 
 
 const createAdmin = async (payload: ICreateAdmin) => {
@@ -70,7 +72,7 @@ const createAdmin = async (payload: ICreateAdmin) => {
         });
 
         return result;
-    } catch{
+    } catch {
         // Cleanup: Delete user if admin creation fails
         await prisma.user.delete({
             where: { id: userData.user.id },
@@ -83,6 +85,32 @@ const createAdmin = async (payload: ICreateAdmin) => {
 
 
 
+const getAllUsers = async (query: IQueryParams) => {
+    const userSearchableFields = ['name', 'email'];
+    const userFilterableFields = ['status', 'emailVerified'];
+    const queryBuilder = new QueryBuilder(
+        prisma.user,
+        query,
+        { searchableFields: userSearchableFields, filterableFields: userFilterableFields }
+    );
+
+    const result = await queryBuilder
+        .where({ role: Role.USER, isDeleted: false }) // hard business rule, not user-controlled
+        .search()
+        .filter()
+        .sort()
+        .paginate()
+        .fields()
+        .execute();
+
+    return result;
+};
+
+
+
+
+
 export const userService = {
-    createAdmin
+    createAdmin,
+    getAllUsers,
 }

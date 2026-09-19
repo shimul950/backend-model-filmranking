@@ -8,13 +8,15 @@ import { platformRoutes } from "../app/modules/platform/platform.routes";
 import { reviewRoutes } from "../app/modules/review/review.routes";
 import { tagRoutes } from "../app/modules/tag/tag.routes";
 import { likeRoute } from "../app/modules/like/like.routes";
+import { commentRoutes } from "../app/modules/comment/comment.routes";
+import wishListRoutes from "../app/modules/wishList/wishList.route";
 import { paymentRoute } from "../app/modules/payment/payment.route";
 import { statsRoute } from "../app/modules/stats/stats.routes";
 import { SuperAdminRoutes } from "../app/modules/superAdmin/superAdmin.routes";
 
 const router = Router()
 
-router.use('/auth',authRouters)
+router.use('/auth', authRouters)
 
 router.use('/users', userRoute)
 
@@ -33,6 +35,11 @@ router.use('/review', reviewRoutes)
 router.use('/tag', tagRoutes)
 
 router.use('/like', likeRoute)
+
+router.use('/comment', commentRoutes)
+
+router.use('/watchlist', wishListRoutes)
+router.use('/wishlist', wishListRoutes)
 
 router.use('/payment', paymentRoute)
 

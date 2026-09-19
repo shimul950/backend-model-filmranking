@@ -3,6 +3,7 @@ import { catchAsync } from "../../../shared/catchAsync";
 import { sendResponce } from "../../../shared/sendResponce";
 import status from "http-status";
 import { adminService } from "./admin.service";
+import { IChangeUserRolePayload, IChangeUserStatusPayload } from "./admin.interface";
 
 const getAllAdmins = catchAsync(
     async (req: Request, res: Response) => {
@@ -56,8 +57,9 @@ const softDeleteAdmin = catchAsync(async(req: Request, res:Response) =>{
 
 const changeUserStatus = catchAsync(async(req: Request, res:Response) =>{
     const user = req.user;
+    const userId = req.params.id
     const payload = req.body
-    const result = await adminService.changeUserStatus(user, payload);
+    const result = await adminService.changeUserStatus(user,userId as string, payload as IChangeUserStatusPayload);
 
     sendResponce(res,{
         httpStatusCode: status.OK,
@@ -69,8 +71,9 @@ const changeUserStatus = catchAsync(async(req: Request, res:Response) =>{
 
 const changeUserRole = catchAsync(async(req: Request, res:Response) =>{
     const user = req.user;
+    const userId = req.params.id
     const payload = req.body
-    const result = await adminService.changeUserRole(user, payload);
+    const result = await adminService.changeUserRole(user, userId as string, payload as IChangeUserRolePayload);
 
     sendResponce(res,{
         httpStatusCode: status.OK,

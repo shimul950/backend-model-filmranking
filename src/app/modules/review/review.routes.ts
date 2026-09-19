@@ -37,6 +37,6 @@ router.patch(
   ReviewController.updateReviewStatus
 );
 
-router.delete("/:id", checkAuth('ADMIN', 'SUPER_ADMIN'), ReviewController.deleteReview);
+router.delete("/:id", checkAuth('ADMIN', 'USER', 'SUPER_ADMIN'), ReviewController.deleteReview);
 
 export const reviewRoutes = router;

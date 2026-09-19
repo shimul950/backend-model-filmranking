@@ -13,7 +13,14 @@ router.post(
     "/create-admin",
     checkAuth("ADMIN", "SUPER_ADMIN"),
     validateRequest(createAdminValidationSchema)
-    , userController.createAdmin)
+    , userController.createAdmin
+)
+
+router.get(
+    "/",
+    checkAuth("ADMIN", "SUPER_ADMIN"),
+    userController.getAllUsers
+)
 
 
 export const userRoute = router;

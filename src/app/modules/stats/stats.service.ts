@@ -9,18 +9,20 @@ const getDashboardStatsData = async (user: IRequestUser) => {
 
     switch (user.role) {
         case Role.ADMIN:
+        case Role.SUPER_ADMIN:
             statsData = await getAdminStatsData();
             break;
         case Role.USER:
             statsData = await getUserStatsData(user);
             break;
         default:
-            throw new AppError(status.BAD_REQUEST, "Invalid user role")
+            throw new AppError(status.BAD_REQUEST, "Invalid user role");
     }
 
     return statsData;
-}
-//ADMIN AND USER DASHBOARD DATA
+};
+
+// ADMIN AND USER DASHBOARD DATA
 
 const getAdminStatsData = async () => {
     const [
@@ -36,10 +38,9 @@ const getAdminStatsData = async () => {
         ratingDistributionPieChart,
         reviewGrowthLineChart,
         mostReviewedMoviesBarChart,
-        recentUsersCount,
-        recentReviewsCount,
-        recentPaymentsCount
-
+        recentUsersData,
+        recentReviewsData,
+        recentPaymentsData
     ] = await Promise.all([
         prisma.genre.count(),
         prisma.media.count(),
@@ -66,11 +67,9 @@ const getAdminStatsData = async () => {
         getReviewGrowthData(),
         getMostReviewedMovies(),
 
-        recentUsers,
-        recentReviews,
-        recentPayments
-
-
+        getRecentUsers(),
+        getRecentReviews(),
+        getRecentPayments()
     ]);
 
     return {
@@ -83,7 +82,7 @@ const getAdminStatsData = async () => {
             totalPayments: paymentCount,
             totalReviews: reviewCount,
             totalRevenue: totalRevenue._sum.amount ?? 0,
-            averageRating: averageRating._avg.rating ?? 0,
+            averageRating: Number((averageRating._avg.rating ?? 0).toFixed(1)),
         },
 
         charts: {
@@ -93,9 +92,12 @@ const getAdminStatsData = async () => {
         },
 
         recentActivities: {
-            recentUsersCount,
-            recentReviewsCount,
-            recentPaymentsCount
+            recentUsers: recentUsersData,
+            recentReviews: recentReviewsData,
+            recentPayments: recentPaymentsData,
+            recentUsersCount: recentUsersData,
+            recentReviewsCount: recentReviewsData,
+            recentPaymentsCount: recentPaymentsData,
         }
     };
 };
@@ -104,27 +106,69 @@ const getUserStatsData = async (user: IRequestUser) => {
     const userData = await prisma.user.findUniqueOrThrow({
         where: {
             email: user.email
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            image: true,
+            status: true,
+            createdAt: true,
         }
-    })
+    });
 
-    const reviewCount = await prisma.review.count({
-        where: {
-            userId: user.userId
-        }
-    })
-
-    const wishlistCount = await prisma.watchlist.count({
-        where: {
-            userId: user.userId
-        }
-    })
+    const [reviewCount, commentCount, wishlistCount, recentReviews, recentWatchlist] = await Promise.all([
+        prisma.review.count({
+            where: {
+                userId: user.userId
+            }
+        }),
+        prisma.comment.count({
+            where: {
+                userId: user.userId
+            }
+        }),
+        prisma.watchlist.count({
+            where: {
+                userId: user.userId
+            }
+        }),
+        prisma.review.findMany({
+            where: {
+                userId: user.userId
+            },
+            take: 5,
+            orderBy: {
+                createdAt: "desc"
+            },
+            include: {
+                media: true
+            }
+        }),
+        prisma.watchlist.findMany({
+            where: {
+                userId: user.userId
+            },
+            take: 6,
+            orderBy: {
+                createdAt: "desc"
+            },
+            include: {
+                media: true
+            }
+        })
+    ]);
 
     return {
         userData,
         reviewCount,
-        wishlistCount
-    }
-}
+        commentCount,
+        wishlistCount,
+        recentReviews,
+        recentWatchlist
+    };
+};
 
 // DASHBOARD CHART DATA FINDING 
 const getRatingDistribution = async () => {
@@ -195,69 +239,108 @@ const getMostReviewedMovies = async () => {
         select: {
             id: true,
             title: true,
+            posterUrl: true,
+            releaseYear: true,
+            averageRating: true,
         },
     });
 
-    return movies.map((movie) => ({
-        movie:
-            movieDetails.find((m) => m.id === movie.mediaId)?.title ??
-            "Unknown",
-        reviews: movie._count.id,
-    }));
+    return movies.map((movie) => {
+        const detail = movieDetails.find((m) => m.id === movie.mediaId);
+        return {
+            id: movie.mediaId,
+            movie: detail?.title ?? "Unknown",
+            posterUrl: detail?.posterUrl ?? null,
+            releaseYear: detail?.releaseYear ?? null,
+            averageRating: detail?.averageRating ?? 0,
+            reviews: movie._count.id,
+        };
+    });
 };
 
 // DASHBOARD RECENT ACTIVITIES DATA FINDING
-const recentUsers = prisma.user.findMany({
-    take: 5,
-    orderBy: {
-        createdAt: "desc",
-    },
-    select: {
-        id: true,
-        name: true,
-        createdAt: true,
-    },
-});
+const getRecentUsers = async () => {
+    return prisma.user.findMany({
+        take: 6,
+        orderBy: {
+            createdAt: "desc",
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            role: true,
+            status: true,
+            createdAt: true,
+        },
+    });
+};
 
-const recentReviews = prisma.review.findMany({
-    take: 5,
-    orderBy: {
-        createdAt: "desc",
-    },
-    select: {
-        id: true,
-        rating: true,
-        createdAt: true,
-        user: {
-            select: {
-                name: true,
+const getRecentReviews = async () => {
+    return prisma.review.findMany({
+        take: 6,
+        orderBy: {
+            createdAt: "desc",
+        },
+        select: {
+            id: true,
+            rating: true,
+            content: true,
+            status: true,
+            createdAt: true,
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    image: true,
+                },
+            },
+            media: {
+                select: {
+                    id: true,
+                    title: true,
+                    posterUrl: true,
+                },
             },
         },
-        media: {
-            select: {
-                title: true,
-            },
-        },
-    },
-});
+    });
+};
 
-const recentPayments = prisma.payment.findMany({
-    take: 5,
-    orderBy: {
-        createdAt: "desc",
-    },
-    select: {
-        id: true,
-        amount: true,
-        createdAt: true,
-        user: {
-            select: {
-                name: true,
+const getRecentPayments = async () => {
+    return prisma.payment.findMany({
+        take: 6,
+        orderBy: {
+            createdAt: "desc",
+        },
+        select: {
+            id: true,
+            amount: true,
+            currency: true,
+            provider: true,
+            status: true,
+            transactionId: true,
+            createdAt: true,
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    image: true,
+                },
+            },
+            media: {
+                select: {
+                    id: true,
+                    title: true,
+                    posterUrl: true,
+                },
             },
         },
-    },
-});
+    });
+};
 
 export const statsService = {
     getDashboardStatsData
-}
+};

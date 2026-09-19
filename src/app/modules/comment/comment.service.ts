@@ -90,10 +90,15 @@ const updateComment = async (id: string, userId: string, payload: IUpdateComment
   return result;
 };
 
-const deleteComment = async (id: string, userId: string) => {
+const deleteComment = async (id: string, userId: string, role?: string) => {
   const existing = await prisma.comment.findUnique({ where: { id } });
 
-  if (!existing || existing.userId !== userId) {
+  if (!existing) {
+    throw new Error("Comment not found");
+  }
+
+  const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN";
+  if (!isAdmin && existing.userId !== userId) {
     throw new Error("Unauthorized");
   }
 
@@ -102,7 +107,30 @@ const deleteComment = async (id: string, userId: string) => {
   return { deleted: true };
 };
 
+const getUserComments = async (userId: string) => {
+  const result = await prisma.comment.findMany({
+    where: { userId },
+    include: {
+      user: true,
+      review: {
+        include: {
+          media: true,
+        },
+      },
+      replies: {
+        include: {
+          user: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return result;
+};
+
 export const commentService = {
+  getUserComments,
   createComment,
   getCommentsByReview,
   getCommentById,

@@ -56,7 +56,8 @@ const updateComment = catchAsync(async (req: Request, res: Response) => {
 const deleteComment = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const userId = req.user.userId;
-  const result = await commentService.deleteComment(id as string, userId);
+  const role = req.user?.role;
+  const result = await commentService.deleteComment(id as string, userId, role);
 
   sendResponce(res, {
     httpStatusCode: status.OK,
@@ -66,7 +67,20 @@ const deleteComment = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getUserComments = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.userId;
+  const result = await commentService.getUserComments(userId);
+
+  sendResponce(res, {
+    httpStatusCode: status.OK,
+    success: true,
+    message: "User comments retrieved successfully",
+    data: result,
+  });
+});
+
 export const commentController = {
+  getUserComments,
   createComment,
   getCommentsByReview,
   getSingleComment,

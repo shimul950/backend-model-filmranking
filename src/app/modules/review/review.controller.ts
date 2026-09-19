@@ -85,7 +85,8 @@ const deleteReview = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const userId = req.user.userId;
 
-  const result = await ReviewService.deleteReview(id as string, userId);
+  const role = req.user?.role;
+  const result = await ReviewService.deleteReview(id as string, userId, role);
 
   sendResponce(res, {
     httpStatusCode: status.OK,

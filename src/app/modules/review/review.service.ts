@@ -56,12 +56,9 @@ const createReview = async (userId: string, payload: IcreateReview) => {
             comments:true
           }
         },
-        comments:{
-          select:{
-            content:true
-          },
-          include:{user:true},
-          orderBy:{createdAt: "desc"}
+        comments: {
+          include: { user: true },
+          orderBy: { createdAt: "desc" }
         },
         user: true,
         media: true
@@ -168,39 +165,61 @@ const updateReviewStatus = async (id: string, status: ReviewStatus) => {
     data: { status }
   });
 
-  // ✅ update media rating if approved
-  if (status === "APPROVED") {
-    const stats = await prisma.review.aggregate({
-      where: {
-        mediaId: review.mediaId,
-        status: "APPROVED"
-      },
-      _avg: { rating: true },
-      _count: true
-    });
+  // Re-aggregate media rating whenever status changes
+  const stats = await prisma.review.aggregate({
+    where: {
+      mediaId: review.mediaId,
+      status: "APPROVED"
+    },
+    _avg: { rating: true },
+    _count: true
+  });
 
-    await prisma.media.update({
-      where: { id: review.mediaId },
-      data: {
-        averageRating: stats._avg.rating || 0,
-        reviewCount: stats._count
-      }
-    });
-  }
+  await prisma.media.update({
+    where: { id: review.mediaId },
+    data: {
+      averageRating: stats._avg.rating || 0,
+      reviewCount: stats._count
+    }
+  });
 
   return review;
 };
 
-const deleteReview = async (id: string, userId: string) => {
+const deleteReview = async (id: string, userId: string, role?: string) => {
   const review = await prisma.review.findUnique({ where: { id } });
 
-  if (!review || review.userId !== userId) {
+  if (!review) {
+    throw new Error("Review not found");
+  }
+
+  const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN";
+  if (!isAdmin && review.userId !== userId) {
     throw new Error("Unauthorized");
   }
 
-  return await prisma.review.delete({
+  const deleted = await prisma.review.delete({
     where: { id }
   });
+
+  const stats = await prisma.review.aggregate({
+    where: {
+      mediaId: review.mediaId,
+      status: "APPROVED"
+    },
+    _avg: { rating: true },
+    _count: true
+  });
+
+  await prisma.media.update({
+    where: { id: review.mediaId },
+    data: {
+      averageRating: stats._avg.rating || 0,
+      reviewCount: stats._count
+    }
+  });
+
+  return deleted;
 };
 
 export const ReviewService = {

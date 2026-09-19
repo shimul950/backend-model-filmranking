@@ -1,3 +1,4 @@
+import { UserStatus } from "../../../generated/prisma/enums";
 
 
 export interface ICreateAdmin {
@@ -8,4 +9,11 @@ export interface ICreateAdmin {
     image?: string;
     contactNumber: string;
   };
+}
+
+export interface IGetAllUsersQuery {
+    search?: string;
+    status?: UserStatus;
+    page?: string;
+    limit?: string;
 }

@@ -1,10 +1,16 @@
 import { Response } from "express";
 
-interface ResponceData <T> {
+export interface ResponceData<T> {
     httpStatusCode: number;
-    success:boolean;
-    message:string;
-    data?: T
+    success: boolean;
+    message: string;
+    data: T;
+    meta?: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+    };
 }
 
 export const sendResponce = <T> (res: Response, responceData: ResponceData<T>) => {
