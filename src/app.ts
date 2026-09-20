@@ -11,7 +11,7 @@ const app: Application = express();
 app.set("view engine", "ejs")
 app.set("views", path.resolve(process.cwd(), `src/app/templates`))
 
-app.all('/api/auth/', toNodeHandler(auth));
+app.all(['/api/auth', '/api/auth/{*splat}'], toNodeHandler(auth));
 
 // Stripe webhook needs raw request body for signature verification
 app.post(

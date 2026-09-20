@@ -151,9 +151,6 @@ const getUserStatsData = async (user: IRequestUser) => {
                 userId: user.userId
             },
             take: 6,
-            orderBy: {
-                createdAt: "desc"
-            },
             include: {
                 media: true
             }

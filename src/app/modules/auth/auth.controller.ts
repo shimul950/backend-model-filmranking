@@ -9,6 +9,7 @@ import { cookieUtils } from "../../../utils/cookie";
 import { envVars } from "../../../config/env";
 import { auth } from "../../lib/auth";
 import { ISessionPayload } from "./auth.interface";
+import { fromNodeHeaders } from "better-auth/node";
 
 
 
@@ -166,7 +167,8 @@ const varifyEmail = catchAsync(
         sendResponce(res,{
             httpStatusCode: status.OK,
             success: true,
-            message: "Email verified successfully"
+            message: "Email verified successfully",
+            data: null
         })
     }
 )
@@ -178,7 +180,8 @@ const forgetPassword = catchAsync(
         sendResponce(res,{
             httpStatusCode: status.OK,
             success: true,
-            message: "Password reset OTP sent to email successfully"
+            message: "Password reset OTP sent to email successfully",
+            data: null
         })
     }
 )
@@ -190,7 +193,8 @@ const resetPassword = catchAsync(
         sendResponce(res,{
             httpStatusCode: status.OK,
             success: true,
-            message: "Password reset successfully"
+            message: "Password reset successfully",
+            data: null
         })
     }
 )
@@ -211,17 +215,19 @@ const googleLogin = catchAsync((req: Request, res: Response) =>{
 const googleLoginSuccess = catchAsync(async(req: Request, res: Response) =>{
     const redirectPath = req.query.redirect as string || "/dashboard";
 
-    const sessionToken = req.cookies["better-auth.session_token"];
+    const sessionToken = req.cookies["better-auth.session_token"] || cookieUtils.getCookie(req, "better-auth.session_token");
 
     if(!sessionToken){
         return res.redirect(`${envVars.FRONTEND_URL}/login?error=oauth_failed`)
     }
 
     const session = await auth.api.getSession({
-        headers:{
-            "Cookie" : `better-auth.session_token=${sessionToken}`
-        }
-    })
+        headers: fromNodeHeaders(req.headers)
+    }) || await auth.api.getSession({
+        headers: new Headers({
+            "Cookie": `better-auth.session_token=${sessionToken}`
+        })
+    });
 
     if(!session){
         return res.redirect(`${envVars.FRONTEND_URL}/login?error=no_session_found`)
@@ -237,6 +243,7 @@ const googleLoginSuccess = catchAsync(async(req: Request, res: Response) =>{
 
     tokenUtils.setAccesssTokenCookie(res, accessToken);
     tokenUtils.setRefreshTokenCookie(res, refreshToken);
+    tokenUtils.setBeterAuthSessionCookie(res, sessionToken);
     // redirect=//profile -> /profile
     const isValidRedirectPath = redirectPath.startsWith("/") && !redirectPath.startsWith("//");
 

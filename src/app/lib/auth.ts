@@ -157,14 +157,14 @@ export const auth = betterAuth({
                     secure: true,
                     httpOnly: true,
                     path: "/"
-                },
-                sessionToken: {
-                    attributes: {
-                        sameSite: "none",
-                        secure: true,
-                        httpOnly: true,
-                        path: "/"
-                    }
+                }
+            },
+            sessionToken: {
+                attributes: {
+                    sameSite: "none",
+                    secure: true,
+                    httpOnly: true,
+                    path: "/"
                 }
             }
         }

@@ -34,16 +34,17 @@
                 if(data.url){
                     window.location.href = data.url
                 }else{
+                    const errorMessage = data?.message || data?.error || "Unknown error";
                     document.body.innerHTML = `<div>
                         <p>Error occurred while redirecting to google. Please try again later</p>
-                        ${error.message}
+                        <pre>${errorMessage}</pre>
                     </div>`
                 }
 
             } catch (error) {
                 document.body.innerHTML = `<div>
                     <p>Error occurred while redirecting to google. Please try again later</p>
-                    ${error.message}
+                    <pre>${error.message}</pre>
                 </div>`
             }
         }

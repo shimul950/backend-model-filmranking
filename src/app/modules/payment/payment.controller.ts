@@ -5,6 +5,7 @@ import { paymentService } from "./payment.service";
 import status from "http-status";
 import Stripe from "stripe";
 import { prisma } from "../../lib/prisma";
+import { PaymentStatus } from "../../../generated/prisma/enums";
 
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 //   apiVersion: "2026-04-22.dahlia",
@@ -57,7 +58,7 @@ const stripeWebhook = async (req: Request, res: Response) => {
         amount: (session.amount_total || 0) / 100,
         currency: session.currency || "bdt",
         provider: "STRIPE",
-        status: "SUCCESS",
+        status: PaymentStatus.PAID,
         transactionId: session.id,
       },
     });
