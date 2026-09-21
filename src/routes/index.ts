@@ -17,39 +17,25 @@ import { paymentRoute } from "../app/modules/payment/payment.route";
 import { statsRoute } from "../app/modules/stats/stats.routes";
 import { SuperAdminRoutes } from "../app/modules/superAdmin/superAdmin.routes";
 
-const router = Router()
+const router = Router();
 
-router.use('/auth', authRouters)
+router.use('/auth', authRouters);
+router.use('/users', userRoute);
+router.use('/admins', AdminRoutes);
+router.use('/super-admins', SuperAdminRoutes);
+router.use('/media', mediaRoutes);
+router.use('/genre', genreRoutes);
+router.use('/platform', platformRoutes);
+router.use('/review', reviewRoutes);
+router.use('/tag', tagRoutes);
+router.use('/like', likeRoute);
+router.use('/comment', commentRoutes);
+router.use('/watchlist', wishListRoutes);
+router.use('/wishlist', wishListRoutes);
+router.use('/payment', paymentRoute);
+router.use('/stats', statsRoute);
+router.use('/cast', castRoutes);
+router.use('/director', directorRoutes);
+router.use('/web-series', webSeriesRoutes);
 
-router.use('/users', userRoute)
-
-router.use('/admins', AdminRoutes)
-
-router.use('/super-admins', SuperAdminRoutes)
-
-router.use('/media', mediaRoutes)
-
-router.use('/genre', genreRoutes)
-
-router.use('/platform', platformRoutes)
-
-router.use('/review', reviewRoutes)
-
-router.use('/tag', tagRoutes)
-
-router.use('/like', likeRoute)
-
-router.use('/comment', commentRoutes)
-
-router.use('/watchlist', wishListRoutes)
-router.use('/wishlist', wishListRoutes)
-
-router.use('/payment', paymentRoute)
-
-router.use('/stats', statsRoute)
-
-export const indexRoutes = router
-
-router.use('/cast', castRoutes)
-router.use('/director', directorRoutes)
-router.use('/web-series', webSeriesRoutes)
+export const indexRoutes = router;
