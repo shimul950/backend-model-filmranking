@@ -1,0 +1,11 @@
+model MediaDirector {
+  mediaId    String @map("media_id")
+  directorId String @map("director_id")
+
+  media    Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  director Director @relation(fields: [directorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([mediaId, directorId])
+  @@index([directorId])
+  @@map("media_directors")
+}

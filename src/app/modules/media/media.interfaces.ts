@@ -13,6 +13,8 @@ export interface ICreateMedia {
 
   genreIds?: string[];
   platformIds?: string[];
+  castIds?: string[];
+  directorIds?: string[];
 }
 
 export interface IUpdateMedia {
@@ -28,4 +30,6 @@ export interface IUpdateMedia {
   youtubeLink?: string;
   genreIds?: string[];
   platformIds?: string[];
+  castIds?: string[];
+  directorIds?: string[];
 }

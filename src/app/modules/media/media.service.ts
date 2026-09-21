@@ -1,4 +1,3 @@
-
 import { prisma } from "../../lib/prisma";
 import { ICreateMedia, IUpdateMedia } from "./media.interfaces";
 import { QueryBuilder } from "../../../utils/QueryBuilder";
@@ -6,14 +5,12 @@ import { IQueryParams } from "../../interfaces/queryBuilder.interface";
 import { mediaSearchableFields, mediaFilterableFields, mediaIncludeConfig } from "./media.constant";
 
 const createMedia = async (payload: ICreateMedia) => {
-  const { genreIds, platformIds, ...mediaData } = payload;
+  const { genreIds, platformIds, castIds, directorIds, ...mediaData } = payload;
 
   const result = await prisma.media.create({
     data: {
       ...mediaData,
-      
 
-      // connect genres
       genres: genreIds
         ? {
             create: genreIds.map((id) => ({
@@ -22,7 +19,6 @@ const createMedia = async (payload: ICreateMedia) => {
           }
         : undefined,
 
-      // connect platforms
       platforms: platformIds
         ? {
             create: platformIds.map((id) => ({
@@ -30,18 +26,45 @@ const createMedia = async (payload: ICreateMedia) => {
             })),
           }
         : undefined,
+
+      casts: castIds
+        ? {
+            create: castIds.map((castId, index) => ({
+              cast: { connect: { id: castId } },
+              order: index,
+            })),
+          }
+        : undefined,
+
+      directors: directorIds
+        ? {
+            create: directorIds.map((directorId) => ({
+              director: { connect: { id: directorId } },
+            })),
+          }
+        : undefined,
     },
 
     include: {
       genres: {
-        include:{
-          genre:true
-        }
+        include: {
+          genre: true,
+        },
       },
-      platforms:{
-        include:{
-          platform: true
-        }
+      platforms: {
+        include: {
+          platform: true,
+        },
+      },
+      casts: {
+        include: {
+          cast: true,
+        },
+      },
+      directors: {
+        include: {
+          director: true,
+        },
       },
     },
   });
@@ -64,7 +87,7 @@ const getAllMedia = async (queryParams: IQueryParams = {}) => {
     .filter()
     .sort()
     .paginate()
-    .dynamicInclude(mediaIncludeConfig, ['genres', 'platforms'])
+    .dynamicInclude(mediaIncludeConfig, ['genres', 'platforms', 'casts', 'directors'])
     .execute();
 
   return result;
@@ -74,8 +97,26 @@ const getMediaById = async (id: string) => {
   const result = await prisma.media.findUnique({
     where: { id },
     include: {
-      genres: true,
-      platforms: true,
+      genres: {
+        include: {
+          genre: true,
+        },
+      },
+      platforms: {
+        include: {
+          platform: true,
+        },
+      },
+      casts: {
+        include: {
+          cast: true,
+        },
+      },
+      directors: {
+        include: {
+          director: true,
+        },
+      },
       reviews: true,
     },
   });
@@ -84,16 +125,29 @@ const getMediaById = async (id: string) => {
 };
 
 const updateMedia = async (id: string, payload: IUpdateMedia) => {
-  const { genreIds, platformIds, ...mediaData } = payload;
+  const { genreIds, platformIds, castIds, directorIds, ...mediaData } = payload;
 
-  // Delete existing genre and platform relations if provided
-  if (genreIds || platformIds) {
-    await prisma.mediaGenre.deleteMany({
-      where: { mediaId: id },
-    });
-    await prisma.mediaPlatform.deleteMany({
-      where: { mediaId: id },
-    });
+  if (genreIds || platformIds || castIds || directorIds) {
+    if (genreIds) {
+      await prisma.mediaGenre.deleteMany({
+        where: { mediaId: id },
+      });
+    }
+    if (platformIds) {
+      await prisma.mediaPlatform.deleteMany({
+        where: { mediaId: id },
+      });
+    }
+    if (castIds) {
+      await prisma.mediaCast.deleteMany({
+        where: { mediaId: id },
+      });
+    }
+    if (directorIds) {
+      await prisma.mediaDirector.deleteMany({
+        where: { mediaId: id },
+      });
+    }
   }
 
   const result = await prisma.media.update({
@@ -101,7 +155,6 @@ const updateMedia = async (id: string, payload: IUpdateMedia) => {
     data: {
       ...mediaData,
 
-      // connect genres
       genres: genreIds
         ? {
             create: genreIds.map((genreId) => ({
@@ -110,7 +163,6 @@ const updateMedia = async (id: string, payload: IUpdateMedia) => {
           }
         : undefined,
 
-      // connect platforms
       platforms: platformIds
         ? {
             create: platformIds.map((platformId) => ({
@@ -118,18 +170,45 @@ const updateMedia = async (id: string, payload: IUpdateMedia) => {
             })),
           }
         : undefined,
+
+      casts: castIds
+        ? {
+            create: castIds.map((castId, index) => ({
+              cast: { connect: { id: castId } },
+              order: index,
+            })),
+          }
+        : undefined,
+
+      directors: directorIds
+        ? {
+            create: directorIds.map((directorId) => ({
+              director: { connect: { id: directorId } },
+            })),
+          }
+        : undefined,
     },
 
     include: {
       genres: {
-        include:{
-          genre:true
-        }
+        include: {
+          genre: true,
+        },
       },
-      platforms:{
-        include:{
-          platform: true
-        }
+      platforms: {
+        include: {
+          platform: true,
+        },
+      },
+      casts: {
+        include: {
+          cast: true,
+        },
+      },
+      directors: {
+        include: {
+          director: true,
+        },
       },
     },
   });

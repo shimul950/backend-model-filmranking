@@ -1,0 +1,61 @@
+model WebSeries {
+  id            String      @id @default(uuid())
+  posterUrl     String?     @map("poster_url")
+  title         String
+  synopsis      String
+  releaseYear   Int         @map("release_year")
+  averageRating Float       @default(0) @map("average_rating")
+  reviewCount   Int         @default(0) @map("review_count")
+  language      String
+  country       String
+  status        MediaStatus @default(RELEASED)
+  pricing       PricingType @default(FREE)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  seasons   Season[]
+
+  @@index([title])
+  @@index([releaseYear])
+  @@map("web_series")
+}
+
+model Season {
+  id             String    @id @default(uuid())
+  webSeriesId    String    @map("web_series_id")
+  seasonNumber   Int       @map("season_number")
+  title          String?
+  synopsis       String?
+  posterUrl      String?   @map("poster_url")
+  youtubeTrailer String?   @map("youtube_trailer")
+  releaseDate    DateTime? @map("release_date")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  webSeries WebSeries @relation(fields: [webSeriesId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  episodes  Episode[]
+
+  @@unique([webSeriesId, seasonNumber])
+  @@map("seasons")
+}
+
+model Episode {
+  id            String   @id @default(uuid())
+  seasonId      String   @map("season_id")
+  episodeNumber Int      @map("episode_number")
+  title         String
+  synopsis      String?
+  duration      Int?
+  stillUrl      String?  @map("still_url")
+  videoUrl      String?  @map("video_url")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([seasonId, episodeNumber])
+  @@map("episodes")
+}

@@ -1,0 +1,13 @@
+model MediaCast {
+  mediaId       String  @map("media_id")
+  castId        String  @map("cast_id")
+  characterName String? @map("character_name")
+  order         Int     @default(0)
+
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  cast  Cast  @relation(fields: [castId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([mediaId, castId])
+  @@index([castId])
+  @@map("media_casts")
+}

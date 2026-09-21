@@ -1,3 +1,6 @@
+import { castRoutes } from "../app/modules/cast/cast.routes";
+import { directorRoutes } from "../app/modules/director/director.routes";
+import { webSeriesRoutes } from "../app/modules/webSeries/webSeries.routes";
 import { Router } from "express";
 import { authRouters } from "../app/modules/auth/auth.routes";
 import { userRoute } from "../app/modules/user/user.routes";
@@ -46,3 +49,7 @@ router.use('/payment', paymentRoute)
 router.use('/stats', statsRoute)
 
 export const indexRoutes = router
+
+router.use('/cast', castRoutes)
+router.use('/director', directorRoutes)
+router.use('/web-series', webSeriesRoutes)

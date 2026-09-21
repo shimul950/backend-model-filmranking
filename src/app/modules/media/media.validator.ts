@@ -13,7 +13,7 @@ export const createMediaZodSchema = z.object({
   releaseYear: z
     .number()
     .int("Release year must be an integer")
-    .min(1888, "Invalid year") // first film history
+    .min(1888, "Invalid year")
     .max(new Date().getFullYear() + 2, "Year too far in future"),
 
   director: z
@@ -45,13 +45,20 @@ export const createMediaZodSchema = z.object({
     .string()
     .optional(),
 
-  // Relations
   genreIds: z
-    .array(z.string("Invalid genre ID"))
+    .array(z.string())
     .optional(),
 
   platformIds: z
-    .array(z.string("Invalid platform ID"))
+    .array(z.string())
+    .optional(),
+
+  castIds: z
+    .array(z.string())
+    .optional(),
+
+  directorIds: z
+    .array(z.string())
     .optional(),
 });
 
@@ -109,10 +116,18 @@ export const updateMediaZodSchema = z.object({
     .optional(),
 
   genreIds: z
-    .array(z.string("Invalid genre ID"))
+    .array(z.string())
     .optional(),
 
   platformIds: z
-    .array(z.string("Invalid platform ID"))
+    .array(z.string())
+    .optional(),
+
+  castIds: z
+    .array(z.string())
+    .optional(),
+
+  directorIds: z
+    .array(z.string())
     .optional(),
 });

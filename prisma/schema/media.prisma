@@ -21,6 +21,8 @@ model Media {
 
   genres    MediaGenre[]
   platforms MediaPlatform[]
+  casts     MediaCast[]
+  directors MediaDirector[]
   reviews   Review[]
   watchlist Watchlist[]
   payment   Payment[]

@@ -1,4 +1,4 @@
-import { Prisma } from "../../../generated/prisma/client"
+import { Prisma } from "../../../generated/prisma/client";
 
 export const mediaSearchableFields = [
     "title",
@@ -6,7 +6,7 @@ export const mediaSearchableFields = [
     "director",
     "language",
     "country"
-]
+];
 
 export const mediaFilterableFields = [
     "title",
@@ -16,7 +16,7 @@ export const mediaFilterableFields = [
     "status",
     "pricing",
     "releaseYear"
-]
+];
 
 export const mediaIncludeConfig: Partial<Record<keyof Prisma.MediaInclude, Prisma.MediaInclude[keyof Prisma.MediaInclude]>> = {
     genres: {
@@ -29,6 +29,16 @@ export const mediaIncludeConfig: Partial<Record<keyof Prisma.MediaInclude, Prism
             platform: true
         }
     },
+    casts: {
+        include: {
+            cast: true
+        }
+    },
+    directors: {
+        include: {
+            director: true
+        }
+    },
     reviews: true,
     watchlist: true
-}
+};
