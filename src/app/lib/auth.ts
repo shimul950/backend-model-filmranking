@@ -146,7 +146,14 @@ export const auth = betterAuth({
         signIn : `${envVars.BETTER_AUTH_URL}/api/v1/auth/google/success`
     },
 
-    trustedOrigins:[process.env.BETTER_AUTH_URL || "http://localhost:5000", envVars.FRONTEND_URL],
+    trustedOrigins: [
+        process.env.BETTER_AUTH_URL || "http://localhost:5000",
+        envVars.BETTER_AUTH_URL,
+        envVars.FRONTEND_URL,
+        "https://backend-model-filmranking.onrender.com",
+        "http://localhost:3000",
+        "http://localhost:5000",
+    ].filter(Boolean),
 
     advanced: {
         useSecureCookies: false,

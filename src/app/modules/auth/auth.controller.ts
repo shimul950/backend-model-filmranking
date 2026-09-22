@@ -199,26 +199,39 @@ const resetPassword = catchAsync(
     }
 )
 
-//  /api/v1/auth/login/google?redirect=/profile
-const googleLogin = catchAsync((req: Request, res: Response) =>{
-    const redirectPath = req.query.redirect || "/dashboard";
+//  /api/v1/auth/login/google?redirect=/dashboard&origin=http://localhost:3000
+const googleLogin = catchAsync((req: Request, res: Response) => {
+    const redirectPath = (req.query.redirect as string) || "/dashboard";
+    const originQuery = (req.query.origin as string) || "";
 
-    const encodedRedirectPath  = encodeURIComponent(redirectPath as string);
+    const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "http";
+    const host = (req.headers["x-forwarded-host"] as string) || req.get("host");
+    const currentBackendOrigin = host ? `${proto}://${host}` : envVars.BETTER_AUTH_URL;
 
-    const callbackUrl = `${envVars.BETTER_AUTH_URL}/api/v1/auth/google/success?redirect=${encodedRedirectPath}`
+    // Target frontend URL for redirects and 'Back to Login' links
+    const rawFrontend = originQuery || (req.get("origin") as string) || envVars.FRONTEND_URL || "http://localhost:3000";
+    const safeFrontendUrl = rawFrontend.replace(/\/+$/, "");
 
-    res.render("googleRedirect",{
+    const encodedRedirectPath = encodeURIComponent(redirectPath);
+    const encodedOrigin = encodeURIComponent(safeFrontendUrl);
+
+    const callbackUrl = `${currentBackendOrigin}/api/v1/auth/google/success?redirect=${encodedRedirectPath}&origin=${encodedOrigin}`;
+
+    res.render("googleRedirect", {
         callBackUrl: callbackUrl,
-        betterAuthUrl: envVars.BETTER_AUTH_URL
-    })
-})
+        betterAuthUrl: currentBackendOrigin,
+        frontendUrl: safeFrontendUrl
+    });
+});
 const googleLoginSuccess = catchAsync(async(req: Request, res: Response) =>{
-    const redirectPath = req.query.redirect as string || "/dashboard";
+    const redirectPath = (req.query.redirect as string) || "/dashboard";
+    const originQuery = (req.query.origin as string) || "";
+    const targetFrontendUrl = (originQuery || envVars.FRONTEND_URL || "http://localhost:3000").replace(/\/+$/, "");
 
     const sessionToken = req.cookies["better-auth.session_token"] || cookieUtils.getCookie(req, "better-auth.session_token");
 
     if(!sessionToken){
-        return res.redirect(`${envVars.FRONTEND_URL}/login?error=oauth_failed`)
+        return res.redirect(`${targetFrontendUrl}/login?error=oauth_failed`);
     }
 
     const session = await auth.api.getSession({
@@ -230,11 +243,11 @@ const googleLoginSuccess = catchAsync(async(req: Request, res: Response) =>{
     });
 
     if(!session){
-        return res.redirect(`${envVars.FRONTEND_URL}/login?error=no_session_found`)
+        return res.redirect(`${targetFrontendUrl}/login?error=no_session_found`);
     }
 
     if(session && !session.user){
-        return res.redirect(`${envVars.FRONTEND_URL}/login?error=no_user_found`)
+        return res.redirect(`${targetFrontendUrl}/login?error=no_user_found`);
     }
 
     const result = await authServices.googleLoginSuccess(session as ISessionPayload);
@@ -249,13 +262,15 @@ const googleLoginSuccess = catchAsync(async(req: Request, res: Response) =>{
 
     const finalRedirectPath = isValidRedirectPath ? redirectPath : "/dashboard";
 
-    res.redirect(`${envVars.FRONTEND_URL}${finalRedirectPath}`)
+    res.redirect(`${targetFrontendUrl}${finalRedirectPath}`);
 })
 
 
 const handleOAuthError = catchAsync((req: Request, res: Response) =>{
-    const error = req.query.error as string || "oauth_failed";
-    res.redirect(`${envVars.FRONTEND_URL}/login?error=${error}`)
+    const error = (req.query.error as string) || "oauth_failed";
+    const originQuery = (req.query.origin as string) || "";
+    const targetFrontendUrl = (originQuery || envVars.FRONTEND_URL || "http://localhost:3000").replace(/\/+$/, "");
+    res.redirect(`${targetFrontendUrl}/login?error=${error}`);
 })
 
 

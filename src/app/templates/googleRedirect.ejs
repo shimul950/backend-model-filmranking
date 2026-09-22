@@ -1,54 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Login</title>
+    <title>Redirecting to Google...</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #0f172a; color: #f8fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+        .card { background-color: #1e293b; border: 1px solid #334155; border-radius: 1rem; padding: 2.5rem; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+        .spinner { width: 44px; height: 44px; border: 4px solid #334155; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1.5rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        h1 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: #f1f5f9; }
+        p { color: #94a3c8; font-size: 0.925rem; line-height: 1.5; }
+        .error-box { display: none; text-align: left; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 0.5rem; padding: 1rem; margin-top: 1.25rem; }
+        .error-title { color: #f87171; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.35rem; }
+        pre { color: #fca5a5; font-size: 0.825rem; white-space: pre-wrap; word-break: break-all; font-family: monospace; }
+        .btn { display: inline-block; margin-top: 1.25rem; background-color: #3b82f6; color: white; text-decoration: none; padding: 0.625rem 1.25rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; transition: background 0.2s; cursor: pointer; border: none; }
+        .btn:hover { background-color: #2563eb; }
+        .btn-outline { background: transparent; border: 1px solid #475569; color: #cbd5e1; margin-left: 0.5rem; }
+        .btn-outline:hover { background: #334155; }
+    </style>
 </head>
-
 <body>
-    <div>
-        <h1>Redirecting to google...</h1>
+    <div class="card">
+        <div id="loading-state">
+            <div class="spinner"></div>
+            <h1>Connecting with Google</h1>
+            <p>Please wait while we redirect you to Google's sign-in page...</p>
+        </div>
+        <div id="error-state" style="display: none;">
+            <h1 style="color: #f87171;">Sign In Redirection Failed</h1>
+            <p>We could not initiate the Google sign-in process.</p>
+            <div class="error-box" id="error-box" style="display: block;">
+                <div class="error-title">Error Details</div>
+                <pre id="error-message"></pre>
+            </div>
+            <div style="margin-top: 1.25rem;">
+                <button class="btn" onclick="location.reload()">Try Again</button>
+                <a href="<%= frontendUrl %>/login" class="btn btn-outline" id="login-link">Back to Login</a>
+            </div>
+        </div>
     </div>
 
-</body>
+    <script>
+        (async () => {
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            const errorMessage = document.getElementById('error-message');
 
-<script>
-    (
-        async () => {
+            const showError = (msg) => {
+                loadingState.style.display = 'none';
+                errorState.style.display = 'block';
+                errorMessage.textContent = msg;
+            };
+
             try {
-                const response = await fetch("<%= betterAuthUrl %>/api/auth/sign-in/social",{
-                    method: "POST",
-                    headers:{
-                        "Content-Type" : "application/json"
-                    },
-                    credentials: "include",
+                // Same-origin endpoint ensures no CORS, mixed content, or port mismatch errors
+                const endpoint = '/api/auth/sign-in/social';
+                const callbackUrl = '<%= callBackUrl %>';
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify({
-                        provider: "google",
-                        callbackUrl: "<%= callBackUrl %>"
+                        provider: 'google',
+                        callbackUrl: callbackUrl
                     })
+                });
 
-                })
-                const data = await response.json();
-                if(data.url){
-                    window.location.href = data.url
-                }else{
-                    const errorMessage = data?.message || data?.error || "Unknown error";
-                    document.body.innerHTML = `<div>
-                        <p>Error occurred while redirecting to google. Please try again later</p>
-                        <pre>${errorMessage}</pre>
-                    </div>`
+
+                const data = await response.json().catch(() => ({}));
+
+
+                if (response.ok && data.url) {
+                    window.location.href = data.url;
+                } else {
+                    const msg = data?.message || data?.error || ('Server returned HTTP ' + response.status);
+                    showError(msg);
                 }
-
-            } catch (error) {
-                document.body.innerHTML = `<div>
-                    <p>Error occurred while redirecting to google. Please try again later</p>
-                    <pre>${error.message}</pre>
-                </div>`
+            } catch (err) {
+                showError(err.message || 'Network error occurred. Please check your connection.');
             }
-        }
-    )()
-</script>
-
+        })();
+    </script>
+</body>
 </html>
