@@ -340,12 +340,29 @@ const changePassword = async (payload: IChangePasswordPayload, sessionToken: str
 
 
 const logoutUser = async (sessionToken: string) => {
-    const result = await auth.api.signOut({
-        headers: new Headers({
-            Authorization: `Bearer${sessionToken}`
-        })
-    })
-    return result
+    if (sessionToken) {
+        const rawToken = sessionToken.includes(".") ? sessionToken.split(".")[0] : sessionToken;
+        await prisma.session.deleteMany({
+            where: {
+                OR: [
+                    { token: sessionToken },
+                    { token: rawToken }
+                ]
+            }
+        });
+
+        try {
+            await auth.api.signOut({
+                headers: new Headers({
+                    Authorization: `Bearer ${sessionToken}`,
+                    Cookie: `better-auth.session_token=${sessionToken}`
+                })
+            });
+        } catch {
+            // best effort signOut
+        }
+    }
+    return { success: true };
 }
 
 const verifyEmail = async (email: string, otp: string) => {

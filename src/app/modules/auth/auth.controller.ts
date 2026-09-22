@@ -132,22 +132,25 @@ const logoutUser = catchAsync(
         const result = await authServices.logoutUser(betterAuthSessiontoken);
 
         cookieUtils.clearCookie(res, 'accessToken', {
-            httpOnly:true,
+            httpOnly: true,
             secure: true,
-            sameSite: 'none'
-        })
+            sameSite: 'none',
+            path: '/'
+        });
 
-        cookieUtils.clearCookie(res, 'refreshToken',{
-            httpOnly:true,
+        cookieUtils.clearCookie(res, 'refreshToken', {
+            httpOnly: true,
             secure: true,
-            sameSite: 'none'
-        })
+            sameSite: 'none',
+            path: '/'
+        });
 
         cookieUtils.clearCookie(res, "better-auth.session_token", {
-            httpOnly:true,
+            httpOnly: true,
             secure: true,
-            sameSite: 'none'
-        })
+            sameSite: 'none',
+            path: '/'
+        });
 
         sendResponce(res,{
             httpStatusCode: status.OK,
@@ -254,17 +257,20 @@ const googleLoginSuccess = catchAsync(async(req: Request, res: Response) =>{
 
     const {accessToken, refreshToken} = result;
 
+    // Use raw session token from Better-Auth session if available
+    const tokenToSend = (session as any)?.session?.token || sessionToken;
+
     // Set cookies on backend response as well (for direct API access with credentials: include)
     tokenUtils.setAccesssTokenCookie(res, accessToken);
     tokenUtils.setRefreshTokenCookie(res, refreshToken);
-    tokenUtils.setBeterAuthSessionCookie(res, sessionToken);
+    tokenUtils.setBeterAuthSessionCookie(res, tokenToSend);
 
     // Validate redirect path: must start with single '/'
     const isValidRedirectPath = redirectPath.startsWith("/") && !redirectPath.startsWith("//");
     const finalRedirectPath = isValidRedirectPath ? redirectPath : "/dashboard";
 
     // Redirect to frontend auth callback so the frontend sets all tokens on its domain
-    const callbackTarget = `${targetFrontendUrl}/api/auth/callback?accessToken=${encodeURIComponent(accessToken)}&refreshToken=${encodeURIComponent(refreshToken)}&sessionToken=${encodeURIComponent(sessionToken)}&redirect=${encodeURIComponent(finalRedirectPath)}`;
+    const callbackTarget = `${targetFrontendUrl}/api/auth/callback?accessToken=${encodeURIComponent(accessToken)}&refreshToken=${encodeURIComponent(refreshToken)}&sessionToken=${encodeURIComponent(tokenToSend)}&redirect=${encodeURIComponent(finalRedirectPath)}`;
 
     res.redirect(callbackTarget);
 })
