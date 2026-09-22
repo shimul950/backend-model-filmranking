@@ -1,3 +1,4 @@
+import { bannerRoutes } from "../app/modules/banner/banner.routes";
 import { castRoutes } from "../app/modules/cast/cast.routes";
 import { directorRoutes } from "../app/modules/director/director.routes";
 import { webSeriesRoutes } from "../app/modules/webSeries/webSeries.routes";
@@ -37,5 +38,6 @@ router.use('/stats', statsRoute);
 router.use('/cast', castRoutes);
 router.use('/director', directorRoutes);
 router.use('/web-series', webSeriesRoutes);
+router.use('/banner', bannerRoutes);
 
 export const indexRoutes = router;

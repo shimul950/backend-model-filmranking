@@ -1,6 +1,7 @@
 model Media {
   id            String      @id @default(uuid())
   posterUrl     String?
+  banner        String?     @map("banner")
   title         String
   synopsis      String
   releaseYear   Int         @map("release_year")

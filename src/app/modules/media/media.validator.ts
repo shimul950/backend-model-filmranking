@@ -45,6 +45,10 @@ export const createMediaZodSchema = z.object({
     .string()
     .optional(),
 
+  banner: z
+    .string()
+    .optional(),
+
   genreIds: z
     .array(z.string())
     .optional(),
@@ -112,6 +116,10 @@ export const updateMediaZodSchema = z.object({
     .optional(),
 
   youtubeLink: z
+    .string()
+    .optional(),
+
+  banner: z
     .string()
     .optional(),
 

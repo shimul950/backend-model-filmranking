@@ -8,6 +8,7 @@ export interface ICreateMedia {
   language: string;
   country: string;
 
+  banner?: string;
   pricing?: "FREE" | "PREMIUM";
   youtubeLink?: string;
 
