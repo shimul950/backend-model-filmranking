@@ -440,41 +440,60 @@ const resetPassword = async (email: string, otp: string, newPassword: string) =>
 }
 
 const googleLoginSuccess = async (session: Record<string, any>) => {
-
-    console.log(session);
-    const isUserExist = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
         where: {
             id: session.user.id
         }
-    })
+    });
 
-    if (!isUserExist) {
-        await prisma.user.create({
+    if (!user) {
+        user = await prisma.user.create({
             data: {
                 id: session.user.id,
                 name: session.user.name,
-                email: session.user.email
+                email: session.user.email,
+                role: session.user.role || Role.USER,
+                status: session.user.status || UserStatus.ACTIVE,
+                emailVerified: session.user.emailVerified ?? true,
+                image: session.user.image || null,
             }
-        })
+        });
+    }
+
+    if (user.status === UserStatus.BLOCKED) {
+        throw new AppError(status.FORBIDDEN, "User is blocked");
+    }
+
+    if (user.isDeleted || user.status === UserStatus.DELETED) {
+        throw new AppError(status.NOT_FOUND, "User is deleted");
     }
 
     const accessToken = tokenUtils.getAccessToken({
-        userId: session.user.id,
-        name: session.user.name,
-        role: session.user.role
-    })
+        userId: user.id,
+        role: user.role,
+        name: user.name,
+        email: user.email,
+        status: user.status,
+        isDeleted: user.isDeleted,
+        emailVarified: user.emailVerified
+    });
 
     const refreshToken = tokenUtils.getRefreshToken({
-        userId: session.user.id,
-        name: session.user.name,
-        role: session.user.role
-    })
+        userId: user.id,
+        role: user.role,
+        name: user.name,
+        email: user.email,
+        status: user.status,
+        isDeleted: user.isDeleted,
+        emailVarified: user.emailVerified
+    });
 
     return {
         accessToken,
-        refreshToken
-    }
-}
+        refreshToken,
+        user
+    };
+};
 
 
 

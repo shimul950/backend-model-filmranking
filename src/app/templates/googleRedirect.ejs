@@ -57,7 +57,7 @@
             try {
                 // Same-origin endpoint ensures no CORS, mixed content, or port mismatch errors
                 const endpoint = '/api/auth/sign-in/social';
-                const callbackUrl = '<%= callBackUrl %>';
+                const callbackUrl = '<%- callBackUrl %>';
 
                 const response = await fetch(endpoint, {
                     method: 'POST',
@@ -65,6 +65,7 @@
                     credentials: 'include',
                     body: JSON.stringify({
                         provider: 'google',
+                        callbackURL: callbackUrl,
                         callbackUrl: callbackUrl
                     })
                 });

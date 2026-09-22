@@ -224,8 +224,8 @@ const googleLogin = catchAsync((req: Request, res: Response) => {
     });
 });
 const googleLoginSuccess = catchAsync(async(req: Request, res: Response) =>{
-    const redirectPath = (req.query.redirect as string) || "/dashboard";
-    const originQuery = (req.query.origin as string) || "";
+    const redirectPath = (req.query.redirect as string) || (req.query['amp;redirect'] as string) || "/dashboard";
+    const originQuery = (req.query.origin as string) || (req.query['amp;origin'] as string) || "";
     const targetFrontendUrl = (originQuery || envVars.FRONTEND_URL || "http://localhost:3000").replace(/\/+$/, "");
 
     const sessionToken = req.cookies["better-auth.session_token"] || cookieUtils.getCookie(req, "better-auth.session_token");
@@ -254,23 +254,27 @@ const googleLoginSuccess = catchAsync(async(req: Request, res: Response) =>{
 
     const {accessToken, refreshToken} = result;
 
+    // Set cookies on backend response as well (for direct API access with credentials: include)
     tokenUtils.setAccesssTokenCookie(res, accessToken);
     tokenUtils.setRefreshTokenCookie(res, refreshToken);
     tokenUtils.setBeterAuthSessionCookie(res, sessionToken);
-    // redirect=//profile -> /profile
-    const isValidRedirectPath = redirectPath.startsWith("/") && !redirectPath.startsWith("//");
 
+    // Validate redirect path: must start with single '/'
+    const isValidRedirectPath = redirectPath.startsWith("/") && !redirectPath.startsWith("//");
     const finalRedirectPath = isValidRedirectPath ? redirectPath : "/dashboard";
 
-    res.redirect(`${targetFrontendUrl}${finalRedirectPath}`);
+    // Redirect to frontend auth callback so the frontend sets all tokens on its domain
+    const callbackTarget = `${targetFrontendUrl}/api/auth/callback?accessToken=${encodeURIComponent(accessToken)}&refreshToken=${encodeURIComponent(refreshToken)}&sessionToken=${encodeURIComponent(sessionToken)}&redirect=${encodeURIComponent(finalRedirectPath)}`;
+
+    res.redirect(callbackTarget);
 })
 
 
 const handleOAuthError = catchAsync((req: Request, res: Response) =>{
     const error = (req.query.error as string) || "oauth_failed";
-    const originQuery = (req.query.origin as string) || "";
+    const originQuery = (req.query.origin as string) || (req.query['amp;origin'] as string) || "";
     const targetFrontendUrl = (originQuery || envVars.FRONTEND_URL || "http://localhost:3000").replace(/\/+$/, "");
-    res.redirect(`${targetFrontendUrl}/login?error=${error}`);
+    res.redirect(`${targetFrontendUrl}/login?error=${encodeURIComponent(error)}`);
 })
 
 
